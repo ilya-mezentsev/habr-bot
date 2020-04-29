@@ -1,0 +1,62 @@
+package articles
+
+import (
+	"github.com/jmoiron/sqlx"
+	"interfaces"
+	"internal_errors"
+	"models"
+)
+
+const (
+	getByCategoryQuery = `SELECT title, category, link FROM articles WHERE category = $1`
+	addArticleQuery    = `
+	INSERT INTO articles(title, category, link)
+	VALUES(:title, :category, :link)
+	ON CONFLICT DO NOTHING`
+)
+
+type Repository struct {
+	db *sqlx.DB
+}
+
+func New(db *sqlx.DB) interfaces.ArticlesRepository {
+	return Repository{db}
+}
+
+func (r Repository) Save(
+	articles chan models.Article,
+	trySave chan bool,
+	processing models.ProcessingChannels,
+) {
+	tx := r.db.MustBegin()
+
+	for {
+		select {
+		case article := <-articles:
+			_, err := tx.NamedExec(addArticleQuery, article)
+			if err != nil {
+				processing.Error <- err
+				return
+			}
+		case <-trySave:
+			err := tx.Commit()
+			if err != nil {
+				processing.Error <- err
+				return
+			} else {
+				processing.Done <- true
+				return
+			}
+		}
+	}
+}
+
+func (r Repository) GetByCategory(category string) ([]models.Article, error) {
+	var articles []models.Article
+	err := r.db.Select(&articles, getByCategoryQuery, category)
+	if len(articles) == 0 {
+		err = internal_errors.NoArticlesFound
+	}
+
+	return articles, err
+}
