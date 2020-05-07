@@ -39,12 +39,6 @@ func init() {
 	}
 	mock.CreateTableIfNotExists(db)
 
-	bot, err := tg.NewBotAPI(configs.TgToken)
-	if err != nil {
-		logger.Error(err)
-		os.Exit(1)
-	}
-
 	controller = getController(
 		articlesService.New(
 			articlesRepository.New(db),
@@ -55,11 +49,10 @@ func init() {
 			),
 			configs.Categories,
 		),
-		bot,
 	)
 }
 
-func getController(service interfaces.ArticlesService, bot *tg.BotAPI) interfaces.Controller {
+func getController(service interfaces.ArticlesService) interfaces.Controller {
 	switch {
 	case configs.Mode.IsCLI():
 		return cliController.New(
@@ -67,11 +60,7 @@ func getController(service interfaces.ArticlesService, bot *tg.BotAPI) interface
 			cliPresenter.New(),
 		)
 	case configs.Mode.IsTelegram():
-		return telegram.New(
-			service,
-			tgPresenter.New(bot),
-			bot,
-		)
+		return getTelegramController(service)
 	default:
 		logger.Error("Unknown mode")
 		os.Exit(1)
@@ -79,10 +68,29 @@ func getController(service interfaces.ArticlesService, bot *tg.BotAPI) interface
 	}
 }
 
+func getTelegramController(service interfaces.ArticlesService) interfaces.Controller {
+	tgToken, err := config.GetTelegramBotToken()
+	if err != nil {
+		logger.Error(err)
+		os.Exit(1)
+	}
+
+	bot, err := tg.NewBotAPI(tgToken)
+	if err != nil {
+		logger.Error(err)
+		os.Exit(1)
+	}
+
+	return telegram.New(
+		service,
+		tgPresenter.New(bot),
+		bot,
+	)
+}
+
 func main() {
 	logger.Info("Start application in mode: " + configs.Mode.Value())
 	processing := models.ProcessingChannels{
-		Done:  make(chan bool),
 		Error: make(chan error),
 	}
 
@@ -92,9 +100,6 @@ func main() {
 		select {
 		case err := <-processing.Error:
 			logger.Error(err)
-			return
-		case <-processing.Done:
-			logger.Info("Processing done")
 			return
 		}
 	}

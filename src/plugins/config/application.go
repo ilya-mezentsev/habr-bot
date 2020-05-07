@@ -12,7 +12,6 @@ type Configs struct {
 	ArticlesResource     string
 	ArticleLinkClassName string
 	ArticlesFilter       string
-	TgToken              string
 	Mode                 Mode
 }
 
@@ -33,11 +32,6 @@ func GetAll() (configs Configs, err error) {
 	}
 
 	configs.ArticleLinkClassName, err = GetArticleLinkClassName()
-	if err != nil {
-		return Configs{}, err
-	}
-
-	configs.TgToken, err = GetTelegramBotToken()
 	if err != nil {
 		return Configs{}, err
 	}
