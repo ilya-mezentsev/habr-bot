@@ -3,12 +3,15 @@ package main
 import (
 	cliController "controllers/cli"
 	"controllers/telegram"
+	"fmt"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	"interfaces"
 	"mock"
 	"models"
+	"net/http"
+	"net/url"
 	"os"
 	"plugins/config"
 	"plugins/logger"
@@ -27,16 +30,10 @@ var (
 func init() {
 	var err error
 	configs, err = config.GetAll()
-	if err != nil {
-		logger.Error(err)
-		os.Exit(1)
-	}
+	handleError(err)
 
 	db, err := sqlx.Open("sqlite3", configs.DBPath)
-	if err != nil {
-		logger.Error(err)
-		os.Exit(1)
-	}
+	handleError(err)
 	mock.CreateTableIfNotExists(db)
 
 	controller = getController(
@@ -70,22 +67,30 @@ func getController(service interfaces.ArticlesService) interfaces.Controller {
 
 func getTelegramController(service interfaces.ArticlesService) interfaces.Controller {
 	tgToken, err := config.GetTelegramBotToken()
-	if err != nil {
-		logger.Error(err)
-		os.Exit(1)
-	}
+	handleError(err)
+
+	httpProxyURL, err := config.GetHttpProxyURL()
+	handleError(err)
+
+	proxyUrl, err := url.Parse(fmt.Sprintf("http://%s", httpProxyURL))
+	handleError(err)
+	http.DefaultTransport = &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
 
 	bot, err := tg.NewBotAPI(tgToken)
-	if err != nil {
-		logger.Error(err)
-		os.Exit(1)
-	}
+	handleError(err)
 
 	return telegram.New(
 		service,
 		tgPresenter.New(bot),
 		bot,
 	)
+}
+
+func handleError(err error) {
+	if err != nil {
+		logger.Error(err)
+		os.Exit(1)
+	}
 }
 
 func main() {

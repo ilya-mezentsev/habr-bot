@@ -86,6 +86,15 @@ func GetTelegramBotToken() (string, error) {
 	return token, nil
 }
 
+func GetHttpProxyURL() (string, error) {
+	proxyURL := os.Getenv("TG_HTTP_PROXY_URL")
+	if proxyURL == "" {
+		return "", noProxyURL
+	}
+
+	return proxyURL, nil
+}
+
 func GetArticlesFilter() string {
 	return os.Getenv("ARTICLES_FILTER")
 }

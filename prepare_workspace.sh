@@ -39,6 +39,7 @@ declare -A env=(
   ['DB_FILE']="${rootFolder}/data/data.db"
   ['GOPATH']="${rootFolder}"
   ['TG_BOT_TOKEN']=''
+  ['TG_HTTP_PROXY_URL']=''
   ['CATEGORIES']='go,infosecurity,programming,webdev,javascript,python'
   ['ARTICLES_RESOURCE']='https://habr.com/ru/hub'
   ['ARTICLES_FILTER']='top/monthly'
