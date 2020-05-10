@@ -86,13 +86,13 @@ func GetTelegramBotToken() (string, error) {
 	return token, nil
 }
 
-func GetHttpProxyURL() (string, error) {
-	proxyURL := os.Getenv("TG_HTTP_PROXY_URL")
-	if proxyURL == "" {
-		return "", noProxyURL
+func GetHttpProxyIps() ([]string, error) {
+	proxyURLs := os.Getenv("TG_HTTP_PROXY_IPS")
+	if proxyURLs == "" {
+		return nil, noProxyURL
 	}
 
-	return proxyURL, nil
+	return strings.Split(proxyURLs, ","), nil
 }
 
 func GetArticlesFilter() string {

@@ -3,7 +3,6 @@ package main
 import (
 	cliController "controllers/cli"
 	"controllers/telegram"
-	"fmt"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
@@ -11,10 +10,10 @@ import (
 	"mock"
 	"models"
 	"net/http"
-	"net/url"
 	"os"
 	"plugins/config"
 	"plugins/logger"
+	"plugins/proxy"
 	cliPresenter "presenters/cli"
 	tgPresenter "presenters/telegram"
 	articlesRepository "repositories/articles"
@@ -69,14 +68,14 @@ func getTelegramController(service interfaces.ArticlesService) interfaces.Contro
 	tgToken, err := config.GetTelegramBotToken()
 	handleError(err)
 
-	httpProxyURL, err := config.GetHttpProxyURL()
+	httpProxyIps, err := config.GetHttpProxyIps()
 	handleError(err)
 
-	proxyUrl, err := url.Parse(fmt.Sprintf("http://%s", httpProxyURL))
+	proxyUrl, err := proxy.GetAvailableIp(httpProxyIps)
 	handleError(err)
-	http.DefaultTransport = &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
+	proxyClient := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyUrl)}}
 
-	bot, err := tg.NewBotAPI(tgToken)
+	bot, err := tg.NewBotAPIWithClient(tgToken, tg.APIEndpoint, proxyClient)
 	handleError(err)
 
 	return telegram.New(
