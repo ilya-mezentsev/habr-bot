@@ -15,5 +15,5 @@ func All() string {
 		GetArticles,
 		ParseArticles,
 		ParseAll,
-	}, ", \n")
+	}, "\n")
 }

@@ -62,6 +62,21 @@ func (m *RepositoryMock) ClearArticles() error {
 	return nil
 }
 
+func (m *RepositoryMock) ClearCategoryArticles(category string) error {
+	if category == GetBadArticle().Category {
+		return someRepositoryError
+	}
+
+	var articles []models.Article
+	for _, article := range m.Articles {
+		if article.Category != category {
+			articles = append(articles, article)
+		}
+	}
+	m.Articles = articles
+	return nil
+}
+
 type ParserMock struct {
 	ParsingError error
 }

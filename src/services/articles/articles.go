@@ -83,6 +83,12 @@ func (s Service) ParseCategory(category string) error {
 		Error: make(chan error),
 	}
 
+	go func() {
+		err := s.repository.ClearCategoryArticles(category)
+		if err != nil {
+			savingProcessing.Error <- err
+		}
+	}()
 	go s.parser.ParseCategory(
 		category,
 		articles,

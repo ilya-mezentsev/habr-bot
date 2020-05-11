@@ -120,3 +120,23 @@ func TestRepository_ClearArticlesSomeError(t *testing.T) {
 
 	utils.AssertNotNil(err, t)
 }
+
+func TestRepository_ClearCategoryArticlesSuccess(t *testing.T) {
+	mock.InitTable(db)
+	defer mock.DropTable(db)
+
+	category := mock.GetFirstArticle().Category
+	err := repository.ClearCategoryArticles(category)
+	articles, _ := repository.GetByCategory(category)
+
+	utils.AssertNil(err, t)
+	utils.AssertEqual(0, len(articles), t)
+}
+
+func TestRepository_ClearCategoryArticlesSomeError(t *testing.T) {
+	mock.DropTable(db)
+
+	err := repository.ClearCategoryArticles(mock.GetFirstArticle().Category)
+
+	utils.AssertNotNil(err, t)
+}

@@ -75,7 +75,7 @@ func TestService_ParseCategorySuccess(t *testing.T) {
 
 	category := mock.GetAllCategories()[0]
 	err := service.ParseCategory(category)
-	expectedArticlesCount := len(mock.GetAllArticles()) + 1
+	expectedArticlesCount := len(mock.GetAllArticles())
 
 	utils.AssertNil(err, t)
 	utils.AssertEqual(expectedArticlesCount, len(repository.Articles), t)

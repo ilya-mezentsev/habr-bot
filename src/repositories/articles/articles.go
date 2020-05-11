@@ -8,9 +8,10 @@ import (
 )
 
 const (
-	clearArticlesQuery = `DELETE FROM articles WHERE id != 0`
-	getByCategoryQuery = `SELECT title, category, link FROM articles WHERE category = $1`
-	addArticleQuery    = `
+	clearArticlesQuery         = `DELETE FROM articles WHERE id != 0`
+	clearCategoryArticlesQuery = `DELETE FROM articles WHERE category = $1`
+	getByCategoryQuery         = `SELECT title, category, link FROM articles WHERE category = $1`
+	addArticleQuery            = `
 	INSERT INTO articles(title, category, link)
 	VALUES(:title, :category, :link)
 	ON CONFLICT DO NOTHING`
@@ -64,6 +65,12 @@ func (r Repository) GetByCategory(category string) ([]models.Article, error) {
 
 func (r Repository) ClearArticles() error {
 	_, err := r.db.Exec(clearArticlesQuery)
+
+	return err
+}
+
+func (r Repository) ClearCategoryArticles(category string) error {
+	_, err := r.db.Exec(clearCategoryArticlesQuery, category)
 
 	return err
 }
