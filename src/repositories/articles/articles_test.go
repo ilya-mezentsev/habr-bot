@@ -101,3 +101,22 @@ func TestRepository_SaveSuccess(t *testing.T) {
 		}
 	}
 }
+
+func TestRepository_ClearArticlesSuccess(t *testing.T) {
+	mock.InitTable(db)
+	defer mock.DropTable(db)
+
+	err := repository.ClearArticles()
+	articles, _ := repository.GetByCategory(mock.GetFirstArticle().Category)
+
+	utils.AssertNil(err, t)
+	utils.AssertEqual(0, len(articles), t)
+}
+
+func TestRepository_ClearArticlesSomeError(t *testing.T) {
+	mock.DropTable(db)
+
+	err := repository.ClearArticles()
+
+	utils.AssertNotNil(err, t)
+}

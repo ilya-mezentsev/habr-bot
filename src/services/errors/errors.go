@@ -7,4 +7,5 @@ var (
 	NoArticlesForCategory = errors.New("no-articles-for-category")
 	SavingArticlesError   = errors.New("saving-articles-error")
 	ParsingCategoryError  = errors.New("parsing-category-error")
+	ClearArticlesError    = errors.New("clear-articles-error")
 )

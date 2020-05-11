@@ -6,11 +6,13 @@ import (
 )
 
 type RepositoryMock struct {
-	Articles []models.Article
+	Articles        []models.Article
+	RepositoryError error
 }
 
 func (m *RepositoryMock) ReInit() {
 	m.Articles = GetAllArticles()
+	m.RepositoryError = nil
 }
 
 func (m *RepositoryMock) Save(
@@ -49,6 +51,15 @@ func (m *RepositoryMock) GetByCategory(category string) ([]models.Article, error
 		return nil, internal_errors.NoArticlesFound
 	}
 	return articles, nil
+}
+
+func (m *RepositoryMock) ClearArticles() error {
+	if m.RepositoryError != nil {
+		return m.RepositoryError
+	}
+
+	m.Articles = []models.Article{}
+	return nil
 }
 
 type ParserMock struct {

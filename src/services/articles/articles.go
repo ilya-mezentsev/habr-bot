@@ -30,6 +30,17 @@ func (s Service) ParseAll() error {
 		Error: make(chan error),
 	}
 
+	if err := s.repository.ClearArticles(); err != nil {
+		logger.WithFields(logger.Fields{
+			MessageTemplate: "Error while parsing all categories: %v",
+			Args: []interface{}{
+				err,
+			},
+		}, logger.Error)
+
+		return errors.ClearArticlesError
+	}
+
 	for _, category := range s.categories {
 		go s.parseCategory(category, parsingProcessing)
 	}

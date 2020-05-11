@@ -101,7 +101,7 @@ func TestService_ParseCategoryParsingError(t *testing.T) {
 func TestService_ParseAllSuccess(t *testing.T) {
 	defer resetMocks()
 
-	expectedArticlesCount := len(repository.Articles) * 2
+	expectedArticlesCount := len(repository.Articles)
 	err := service.ParseAll()
 
 	utils.AssertNil(err, t)
@@ -115,4 +115,13 @@ func TestService_ParseAllParsingError(t *testing.T) {
 	err := service.ParseAll()
 
 	utils.AssertErrorsEqual(errors.ParsingCategoryError, err, t)
+}
+
+func TestService_ParseAllClearArticlesError(t *testing.T) {
+	defer resetMocks()
+
+	repository.RepositoryError = errors.InternalError
+	err := service.ParseAll()
+
+	utils.AssertErrorsEqual(errors.ClearArticlesError, err, t)
 }
