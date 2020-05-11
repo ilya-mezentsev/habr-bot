@@ -13,8 +13,7 @@ const (
 	getByCategoryQuery         = `SELECT title, category, link FROM articles WHERE category = $1`
 	addArticleQuery            = `
 	INSERT INTO articles(title, category, link)
-	VALUES(:title, :category, :link)
-	ON CONFLICT DO NOTHING`
+	VALUES(:title, :category, :link)`
 )
 
 type Repository struct {

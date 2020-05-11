@@ -9,9 +9,9 @@ const (
 	dropTableQuery   = `DROP TABLE IF EXISTS articles;`
 	createTableQuery = `CREATE TABLE IF NOT EXISTS articles(
 		id INTEGER PRIMARY KEY,
-		title TEXT UNIQUE NOT NULL,
+		title TEXT NOT NULL,
 		category TEXT NOT NULL,
-		link TEXT UNIQUE NOT NULL
+		link TEXT NOT NULL
 	)`
 	addArticleQuery = `
 	INSERT INTO articles(title, category, link)

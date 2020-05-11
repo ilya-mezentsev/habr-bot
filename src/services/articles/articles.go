@@ -51,12 +51,10 @@ func (s Service) ParseAll() error {
 			return err
 		case <-parsingProcessing.Done:
 			parsedCategoriesCount++
-		}
-
-		if parsedCategoriesCount < categoriesCount {
-			continue
-		} else {
-			return nil
+		default:
+			if parsedCategoriesCount >= categoriesCount {
+				return nil
+			}
 		}
 	}
 }
