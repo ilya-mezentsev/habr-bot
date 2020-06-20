@@ -9,6 +9,7 @@ import (
 type Configs struct {
 	DBPath               string
 	Categories           []string
+	Filters              []string
 	ArticlesResource     string
 	ArticleLinkClassName string
 	ArticlesFilter       string
@@ -26,6 +27,11 @@ func GetAll() (configs Configs, err error) {
 		return Configs{}, err
 	}
 
+	configs.Filters, err = GetFilters()
+	if err != nil {
+		return Configs{}, err
+	}
+
 	configs.ArticlesResource, err = GetArticleResource()
 	if err != nil {
 		return Configs{}, err
@@ -36,7 +42,6 @@ func GetAll() (configs Configs, err error) {
 		return Configs{}, err
 	}
 
-	configs.ArticlesFilter = GetArticlesFilter()
 	configs.Mode = GetMode()
 	return configs, nil
 }
@@ -57,6 +62,15 @@ func GetCategories() ([]string, error) {
 	}
 
 	return strings.Split(categories, ","), nil
+}
+
+func GetFilters() ([]string, error) {
+	filters := os.Getenv("CATEGORIES_FILTERS")
+	if filters == "" {
+		return nil, noFilters
+	}
+
+	return strings.Split(filters, ","), nil
 }
 
 func GetArticleResource() (string, error) {
@@ -84,19 +98,6 @@ func GetTelegramBotToken() (string, error) {
 	}
 
 	return token, nil
-}
-
-func GetHttpProxyIps() ([]string, error) {
-	proxyURLs := os.Getenv("TG_HTTP_PROXY_IPS")
-	if proxyURLs == "" {
-		return nil, noProxyURL
-	}
-
-	return strings.Split(proxyURLs, ","), nil
-}
-
-func GetArticlesFilter() string {
-	return os.Getenv("ARTICLES_FILTER")
 }
 
 func GetMode() Mode {

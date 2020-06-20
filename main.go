@@ -9,11 +9,9 @@ import (
 	"interfaces"
 	"mock"
 	"models"
-	"net/http"
 	"os"
 	"plugins/config"
 	"plugins/logger"
-	"plugins/proxy"
 	cliPresenter "presenters/cli"
 	tgPresenter "presenters/telegram"
 	articlesRepository "repositories/articles"
@@ -41,9 +39,11 @@ func init() {
 			articlesParser.New(
 				configs.ArticlesResource,
 				configs.ArticleLinkClassName,
-				configs.ArticlesFilter,
 			),
-			configs.Categories,
+			articlesParser.CombineCategoriesWithFilters(
+				configs.Categories,
+				configs.Filters,
+			),
 		),
 	)
 }
@@ -68,14 +68,7 @@ func getTelegramController(service interfaces.ArticlesService) interfaces.Contro
 	tgToken, err := config.GetTelegramBotToken()
 	handleError(err)
 
-	httpProxyIps, err := config.GetHttpProxyIps()
-	handleError(err)
-
-	proxyUrl, err := proxy.GetAvailableIp(httpProxyIps)
-	handleError(err)
-	proxyClient := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyUrl)}}
-
-	bot, err := tg.NewBotAPIWithClient(tgToken, tg.APIEndpoint, proxyClient)
+	bot, err := tg.NewBotAPI(tgToken)
 	handleError(err)
 
 	return telegram.New(
