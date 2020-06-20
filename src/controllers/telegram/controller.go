@@ -82,7 +82,7 @@ func (c Controller) processMessage(update tg.Update) error {
 	case commands.ParseArticles:
 		return c.parseArticles(update)
 	default:
-		return c.sayAboutUnknownCommandAndShowCategories(update)
+		return c.sayAboutUnknownCommand(update)
 	}
 }
 
@@ -95,16 +95,11 @@ func (c Controller) parseAll(update tg.Update) error {
 	return c.sayAllCategoriesIsParsed(update)
 }
 
-func (c Controller) sayAboutUnknownCommandAndShowCategories(update tg.Update) error {
-	err := c.presenter.Info(tg.NewMessage(
+func (c Controller) sayAboutUnknownCommand(update tg.Update) error {
+	return c.presenter.Info(tg.NewMessage(
 		update.Message.Chat.ID,
 		fmt.Sprintf("Unknown command. Available: \n%s", commands.All()),
 	))
-	if err != nil {
-		return err
-	}
-
-	return c.showCategories(update)
 }
 
 func (c Controller) showCategories(update tg.Update) error {
