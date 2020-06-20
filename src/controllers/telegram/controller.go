@@ -60,15 +60,10 @@ func (c Controller) processChoseCategory(update tg.Update) error {
 		return err
 	}
 
-	err = c.presenter.Info(tg.NewMessage(
+	return c.presenter.Info(tg.NewMessage(
 		update.CallbackQuery.Message.Chat.ID,
 		fmt.Sprintf("Chosen cateogry: %s", update.CallbackQuery.Data),
 	))
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (c Controller) processMessage(update tg.Update) error {
@@ -104,12 +99,8 @@ func (c Controller) sayAboutUnknownCommand(update tg.Update) error {
 
 func (c Controller) showCategories(update tg.Update) error {
 	c.presenter.SetMessageConfig(tg.NewMessage(update.Message.Chat.ID, "Choose category"))
-	err := c.presenter.ShowCategories(c.service.GetCategories())
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return c.presenter.ShowCategories(c.service.GetCategories())
 }
 
 func (c Controller) showArticles(update tg.Update) error {
