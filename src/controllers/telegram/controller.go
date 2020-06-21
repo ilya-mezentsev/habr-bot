@@ -9,20 +9,26 @@ import (
 	"services/errors"
 )
 
-var currentCategory = ""
+var (
+	currentCategory   = ""
+	currentFilter     = ""
+	processingCommand = ""
+)
 
 type Controller struct {
-	service   interfaces.ArticlesService
-	presenter interfaces.TelegramPresenter
-	bot       *tg.BotAPI
+	service       interfaces.ArticlesService
+	presenter     interfaces.TelegramPresenter
+	bot           *tg.BotAPI
+	buildCategory interfaces.BuildFormattedCategory
 }
 
 func New(
 	service interfaces.ArticlesService,
 	presenter interfaces.TelegramPresenter,
 	bot *tg.BotAPI,
+	buildCategory interfaces.BuildFormattedCategory,
 ) Controller {
-	return Controller{service, presenter, bot}
+	return Controller{service, presenter, bot, buildCategory}
 }
 
 func (c Controller) Run(processing models.ProcessingChannels) {
@@ -37,7 +43,7 @@ func (c Controller) Run(processing models.ProcessingChannels) {
 
 	for update := range updates {
 		if update.CallbackQuery != nil {
-			err := c.processChoseCategory(update)
+			err := c.processCallback(update)
 			if err != nil {
 				processing.Error <- err
 				return
@@ -53,6 +59,17 @@ func (c Controller) Run(processing models.ProcessingChannels) {
 	}
 }
 
+func (c Controller) processCallback(update tg.Update) error {
+	switch processingCommand {
+	case commands.GetCategories:
+		return c.processChoseCategory(update)
+	case commands.GetFilters:
+		return c.processChoseFilter(update)
+	default:
+		return nil
+	}
+}
+
 func (c Controller) processChoseCategory(update tg.Update) error {
 	currentCategory = update.CallbackQuery.Data
 	_, err := c.bot.AnswerCallbackQuery(tg.NewCallback(update.CallbackQuery.ID, update.CallbackQuery.Data))
@@ -62,21 +79,39 @@ func (c Controller) processChoseCategory(update tg.Update) error {
 
 	return c.presenter.Info(tg.NewMessage(
 		update.CallbackQuery.Message.Chat.ID,
-		fmt.Sprintf("Chosen cateogry: %s", update.CallbackQuery.Data),
+		fmt.Sprintf("Chosen cateogry: %s", currentCategory),
+	))
+}
+
+func (c Controller) processChoseFilter(update tg.Update) error {
+	currentFilter = update.CallbackQuery.Data
+	_, err := c.bot.AnswerCallbackQuery(tg.NewCallback(update.CallbackQuery.ID, update.CallbackQuery.Data))
+	if err != nil {
+		return err
+	}
+
+	return c.presenter.Info(tg.NewMessage(
+		update.CallbackQuery.Message.Chat.ID,
+		fmt.Sprintf("Chosen filter: %s", currentFilter),
 	))
 }
 
 func (c Controller) processMessage(update tg.Update) error {
-	switch update.Message.Text {
+	processingCommand = update.Message.Text
+
+	switch processingCommand {
 	case commands.ParseAll:
 		return c.parseAll(update)
 	case commands.GetCategories:
 		return c.showCategories(update)
+	case commands.GetFilters:
+		return c.showFilters(update)
 	case commands.GetArticles:
 		return c.showArticles(update)
 	case commands.ParseArticles:
 		return c.parseArticles(update)
 	default:
+		processingCommand = ""
 		return c.sayAboutUnknownCommand(update)
 	}
 }
@@ -100,7 +135,13 @@ func (c Controller) sayAboutUnknownCommand(update tg.Update) error {
 func (c Controller) showCategories(update tg.Update) error {
 	c.presenter.SetMessageConfig(tg.NewMessage(update.Message.Chat.ID, "Choose category"))
 
-	return c.presenter.ShowCategories(c.service.GetCategories())
+	return c.presenter.ShowAsButtons(c.service.GetCategories())
+}
+
+func (c Controller) showFilters(update tg.Update) error {
+	c.presenter.SetMessageConfig(tg.NewMessage(update.Message.Chat.ID, "Choose category"))
+
+	return c.presenter.ShowAsButtons(c.service.GetFilters())
 }
 
 func (c Controller) showArticles(update tg.Update) error {
@@ -108,7 +149,8 @@ func (c Controller) showArticles(update tg.Update) error {
 		return c.sayCategoryIsNotSet(update)
 	}
 
-	articles, err := c.service.GetArticles(currentCategory)
+	category := c.buildCategory(currentCategory, currentFilter)
+	articles, err := c.service.GetArticles(category)
 	switch err {
 	case nil:
 		break
@@ -120,7 +162,7 @@ func (c Controller) showArticles(update tg.Update) error {
 
 	c.presenter.SetMessageConfig(tg.NewMessage(
 		update.Message.Chat.ID,
-		fmt.Sprintf("Articles for %s category", currentCategory),
+		fmt.Sprintf("Articles for %s category", category),
 	))
 	return c.presenter.ShowArticles(articles)
 }
@@ -130,7 +172,8 @@ func (c Controller) parseArticles(update tg.Update) error {
 		return c.sayCategoryIsNotSet(update)
 	}
 
-	err := c.service.ParseCategory(currentCategory)
+	category := c.buildCategory(currentCategory, currentFilter)
+	err := c.service.ParseCategory(category)
 	if err != nil {
 		return err
 	}

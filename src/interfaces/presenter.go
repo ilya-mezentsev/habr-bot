@@ -7,7 +7,7 @@ import (
 
 type (
 	ArticlesPresenter interface {
-		ShowCategories(categories []string) error
+		ShowAsButtons(strings []string) error
 		ShowArticles(articles []models.Article) error
 	}
 

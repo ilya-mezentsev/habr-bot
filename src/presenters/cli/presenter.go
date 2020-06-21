@@ -13,7 +13,7 @@ func New() interfaces.ArticlesPresenter {
 	return Presenter{}
 }
 
-func (p Presenter) ShowCategories(categories []string) error {
+func (p Presenter) ShowAsButtons(categories []string) error {
 	fmt.Println("All categories:")
 	for idx, category := range categories {
 		fmt.Printf("\t%d. %s\n", idx+1, category)

@@ -69,7 +69,7 @@ func (c Controller) parseAll() error {
 }
 
 func (c Controller) showCategories() error {
-	_ = c.presenter.ShowCategories(c.service.GetCategories())
+	_ = c.presenter.ShowAsButtons(c.service.GetCategories())
 
 	return nil
 }

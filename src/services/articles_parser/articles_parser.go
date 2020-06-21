@@ -7,6 +7,7 @@ import (
 	"io"
 	"models"
 	"net/http"
+	"services/category_format"
 	"strings"
 )
 
@@ -20,11 +21,11 @@ func New(url, className string) interfaces.ArticlesParserService {
 }
 
 func (s Service) ParseCategory(
-	category string,
+	categoryData string,
 	articles chan<- models.Article,
 	articlesProcessing models.ProcessingChannels,
 ) {
-	responseBody, err := s.getCategoryContent(NewCategory(category))
+	responseBody, err := s.getCategoryContent(category_format.New(categoryData))
 	if err != nil {
 		articlesProcessing.Error <- err
 		return
@@ -43,7 +44,7 @@ func (s Service) ParseCategory(
 
 			if s.isArticleLink(token) {
 				tokenizer.Next()
-				article := s.prepareArticle(category, token)
+				article := s.prepareArticle(categoryData, token)
 				article.Title = string(tokenizer.Text())
 
 				articles <- article
@@ -53,7 +54,7 @@ func (s Service) ParseCategory(
 	}
 }
 
-func (s Service) getCategoryContent(category Category) (io.ReadCloser, error) {
+func (s Service) getCategoryContent(category category_format.Category) (io.ReadCloser, error) {
 	response, err := http.Get(s.getURL(category))
 	if err != nil {
 		return nil, err
@@ -62,7 +63,7 @@ func (s Service) getCategoryContent(category Category) (io.ReadCloser, error) {
 	return response.Body, nil
 }
 
-func (s Service) getURL(category Category) string {
+func (s Service) getURL(category category_format.Category) string {
 	return fmt.Sprintf("%s/%s/%s", s.habrHubUrl, category.GetName(), category.GetFilter())
 }
 

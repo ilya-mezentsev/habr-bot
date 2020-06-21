@@ -1,4 +1,4 @@
-package articles_parser
+package category_format
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ type Category struct {
 
 const categoryFilterSplitter = ":"
 
-func NewCategory(data string) Category {
+func New(data string) Category {
 	parts := strings.Split(data, categoryFilterSplitter)
 	var name, filter string
 	name = parts[0]
@@ -39,10 +39,18 @@ func CombineCategoriesWithFilters(categories, filters []string) []string {
 		for _, filter := range filters {
 			combinedCategories = append(
 				combinedCategories,
-				fmt.Sprintf("%s%s%s", category, categoryFilterSplitter, filter),
+				GetFormattedCategory(category, filter),
 			)
 		}
 	}
 
 	return combinedCategories
+}
+
+func GetFormattedCategory(name, filter string) string {
+	if filter == "" {
+		return name
+	} else {
+		return fmt.Sprintf("%s%s%s", name, categoryFilterSplitter, filter)
+	}
 }

@@ -17,6 +17,7 @@ import (
 	articlesRepository "repositories/articles"
 	articlesService "services/articles"
 	articlesParser "services/articles_parser"
+	"services/category_format"
 )
 
 var (
@@ -40,10 +41,8 @@ func init() {
 				configs.ArticlesResource,
 				configs.ArticleLinkClassName,
 			),
-			articlesParser.CombineCategoriesWithFilters(
-				configs.Categories,
-				configs.Filters,
-			),
+			configs.Categories,
+			configs.Filters,
 		),
 	)
 }
@@ -75,6 +74,7 @@ func getTelegramController(service interfaces.ArticlesService) interfaces.Contro
 		service,
 		tgPresenter.New(bot),
 		bot,
+		category_format.GetFormattedCategory,
 	)
 }
 

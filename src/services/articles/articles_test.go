@@ -21,7 +21,7 @@ func init() {
 	repository.ReInit()
 	parser.ReInit()
 
-	service = New(&repository, &parser, mock.GetAllCategories())
+	service = New(&repository, &parser, mock.GetAllCategories(), []string{})
 }
 
 func resetMocks() {
@@ -68,6 +68,10 @@ func TestService_GetCategories(t *testing.T) {
 	for categoryIndex, expectedCategory := range mock.GetAllCategories() {
 		utils.AssertEqual(expectedCategory, categories[categoryIndex], t)
 	}
+}
+
+func TestService_GetFilters(t *testing.T) {
+	utils.AssertEqual(0, len(service.GetFilters()), t)
 }
 
 func TestService_ParseCategorySuccess(t *testing.T) {

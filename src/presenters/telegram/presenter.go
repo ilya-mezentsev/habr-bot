@@ -19,7 +19,7 @@ func (p *Presenter) SetMessageConfig(config tg.MessageConfig) {
 	p.messageConfig = config
 }
 
-func (p Presenter) ShowCategories(categories []string) error {
+func (p Presenter) ShowAsButtons(categories []string) error {
 	if p.messageConfig == (tg.MessageConfig{}) {
 		return noMessageConfig
 	}

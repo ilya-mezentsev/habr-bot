@@ -5,6 +5,7 @@ import (
 	"internal_errors"
 	"models"
 	"plugins/logger"
+	"services/category_format"
 	"services/errors"
 )
 
@@ -12,14 +13,16 @@ type Service struct {
 	repository interfaces.ArticlesRepository
 	parser     interfaces.ArticlesParserService
 	categories []string
+	filters    []string
 }
 
 func New(
 	repository interfaces.ArticlesRepository,
 	parser interfaces.ArticlesParserService,
 	categories []string,
+	filters []string,
 ) interfaces.ArticlesService {
-	return Service{repository, parser, categories}
+	return Service{repository, parser, categories, filters}
 }
 
 func (s Service) ParseAll() error {
@@ -41,7 +44,7 @@ func (s Service) ParseAll() error {
 		return errors.ClearArticlesError
 	}
 
-	for _, category := range s.categories {
+	for _, category := range category_format.CombineCategoriesWithFilters(s.categories, s.filters) {
 		go s.parseCategory(category, parsingProcessing)
 	}
 
@@ -126,6 +129,10 @@ func (s Service) logParsingCategoryError(category string, err error) {
 
 func (s Service) GetCategories() []string {
 	return s.categories
+}
+
+func (s Service) GetFilters() []string {
+	return s.filters
 }
 
 func (s Service) GetArticles(category string) ([]models.Article, error) {
