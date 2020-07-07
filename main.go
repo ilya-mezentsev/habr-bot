@@ -70,6 +70,9 @@ func getTelegramController(service interfaces.ArticlesService) interfaces.Contro
 	bot, err := tg.NewBotAPI(tgToken)
 	handleError(err)
 
+	_, err = bot.RemoveWebhook()
+	handleError(err)
+
 	return telegram.New(
 		service,
 		tgPresenter.New(bot),
