@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
-go run "${GOPATH}"/main.go -mode tg
+cd "${PROJECT_ROOT}" || exit
+./main -mode tg

@@ -25,6 +25,11 @@ function installGolangDeps() {
   done
 }
 
+function build() {
+  cd "$1" || exit
+  GOPATH="$1" go build main.go
+}
+
 rootFolder="$1"
 if [[ ${rootFolder} = '' ]]; then
   echo 'root folder was not provided'
@@ -48,6 +53,7 @@ declare -A env=(
 prepareFolders "${rootFolder}"
 prepareFiles "${rootFolder}"
 installGolangDeps "${rootFolder}"
+build "${rootFolder}"
 
 for envKey in "${!env[@]}"
 do
