@@ -7,11 +7,13 @@ Bot for parsing articles from habr.com
 $ git clone https://github.com/ilya-mezentsev/habr_bot.git
 
 $ cd habr_bot && bash prepare_workspace.sh $(pwd)
+
+$ bash run.sh build
 ```
 
 ## Testing
 ```bash
-$ bash run.sh go_tests
+$ bash run.sh tests
 ```
 
 ## Debug
