@@ -53,6 +53,8 @@ func (c Controller) execute(command string) error {
 		return c.getArticles()
 	case commands.ParseArticles:
 		return c.parseArticles()
+	case commands.Clean:
+		return c.clean()
 	default:
 		return c.unknown(command)
 	}
@@ -111,6 +113,12 @@ func (c Controller) parseArticles() error {
 	}
 
 	fmt.Println("Articles is parsed")
+	return nil
+}
+
+func (c Controller) clean() error {
+	currentCategory = ""
+
 	return nil
 }
 

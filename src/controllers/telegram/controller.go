@@ -110,6 +110,8 @@ func (c Controller) processMessage(update tg.Update) error {
 		return c.showArticles(update)
 	case commands.ParseArticles:
 		return c.parseArticles(update)
+	case commands.Clean:
+		return c.clean(update)
 	default:
 		processingCommand = ""
 		return c.sayAboutUnknownCommand(update)
@@ -185,6 +187,20 @@ func (c Controller) sayCategoryIsNotSet(update tg.Update) error {
 	return c.presenter.Info(tg.NewMessage(
 		update.Message.Chat.ID,
 		"Category is not set",
+	))
+}
+
+func (c Controller) clean(update tg.Update) error {
+	currentCategory = ""
+	currentFilter = ""
+
+	return c.sayCategoryAndFilterAreCleaned(update)
+}
+
+func (c Controller) sayCategoryAndFilterAreCleaned(update tg.Update) error {
+	return c.presenter.Info(tg.NewMessage(
+		update.Message.Chat.ID,
+		"Category and filter are cleaned",
 	))
 }
 

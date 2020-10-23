@@ -8,6 +8,7 @@ const (
 	GetArticles   = "/get_articles"
 	ParseAll      = "/parse_all"
 	ParseArticles = "/parse_articles"
+	Clean         = "/clean"
 )
 
 func All() string {
@@ -17,5 +18,6 @@ func All() string {
 		GetArticles,
 		ParseArticles,
 		ParseAll,
+		Clean,
 	}, "\n")
 }
