@@ -1,23 +1,23 @@
 package main
 
 import (
-	cliController "controllers/cli"
-	"controllers/telegram"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
-	"interfaces"
-	"mock"
-	"models"
+	cliController "habr-bot/source/controllers/cli"
+	"habr-bot/source/controllers/telegram"
+	"habr-bot/source/interfaces"
+	"habr-bot/source/mock"
+	"habr-bot/source/models"
+	"habr-bot/source/plugins/config"
+	"habr-bot/source/plugins/logger"
+	cliPresenter "habr-bot/source/presenters/cli"
+	tgPresenter "habr-bot/source/presenters/telegram"
+	articlesRepository "habr-bot/source/repositories/articles"
+	articlesService "habr-bot/source/services/articles"
+	articlesParser "habr-bot/source/services/articles_parser"
+	"habr-bot/source/services/category_format"
 	"os"
-	"plugins/config"
-	"plugins/logger"
-	cliPresenter "presenters/cli"
-	tgPresenter "presenters/telegram"
-	articlesRepository "repositories/articles"
-	articlesService "services/articles"
-	articlesParser "services/articles_parser"
-	"services/category_format"
 )
 
 var (
