@@ -1,0 +1,18 @@
+{
+    "categories": [
+        "go",
+        "rust",
+        "infosecurity",
+        "programming",
+        "webdev",
+        "javascript",
+        "python"
+    ],
+    "article_link_class_name": "post__title_link",
+    "articles_resource": "https://habr.com/ru/hub",
+    "categories_filters": [
+        "top10",
+        "top",
+        "top/monthly"
+    ]
+}

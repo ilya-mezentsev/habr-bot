@@ -42,7 +42,7 @@ func init() {
 				configs.ArticleLinkClassName,
 			),
 			configs.Categories,
-			configs.Filters,
+			configs.CategoriesFilters,
 		),
 	)
 }

@@ -1,43 +1,38 @@
 package config
 
 import (
+	"encoding/json"
 	"flag"
+	"io/ioutil"
 	"os"
-	"strings"
 )
 
 type Configs struct {
 	DBPath               string
-	Categories           []string
-	Filters              []string
-	ArticlesResource     string
-	ArticleLinkClassName string
-	ArticlesFilter       string
+	Categories           []string `json:"categories"`
+	CategoriesFilters    []string `json:"categories_filters"`
+	ArticlesResource     string   `json:"articles_resource"`
+	ArticleLinkClassName string   `json:"article_link_class_name"`
+	ArticlesFilter       string   `json:"articles_filter"`
 	Mode                 Mode
 }
 
 func GetAll() (configs Configs, err error) {
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+
+	data, err := ioutil.ReadFile(*configsPath)
+	if err != nil {
+		return Configs{}, err
+	}
+
+	err = json.Unmarshal(data, &configs)
+	if err != nil {
+		return Configs{}, err
+	}
+
 	configs.DBPath, err = GetDBPath()
-	if err != nil {
-		return Configs{}, err
-	}
-
-	configs.Categories, err = GetCategories()
-	if err != nil {
-		return Configs{}, err
-	}
-
-	configs.Filters, err = GetFilters()
-	if err != nil {
-		return Configs{}, err
-	}
-
-	configs.ArticlesResource, err = GetArticleResource()
-	if err != nil {
-		return Configs{}, err
-	}
-
-	configs.ArticleLinkClassName, err = GetArticleLinkClassName()
 	if err != nil {
 		return Configs{}, err
 	}
@@ -55,42 +50,6 @@ func GetDBPath() (string, error) {
 	return path, nil
 }
 
-func GetCategories() ([]string, error) {
-	categories := os.Getenv("CATEGORIES")
-	if categories == "" {
-		return nil, noCategories
-	}
-
-	return strings.Split(categories, ","), nil
-}
-
-func GetFilters() ([]string, error) {
-	filters := os.Getenv("CATEGORIES_FILTERS")
-	if filters == "" {
-		return nil, noFilters
-	}
-
-	return strings.Split(filters, ","), nil
-}
-
-func GetArticleResource() (string, error) {
-	resource := os.Getenv("ARTICLES_RESOURCE")
-	if resource == "" {
-		return "", noArticlesResource
-	}
-
-	return resource, nil
-}
-
-func GetArticleLinkClassName() (string, error) {
-	resource := os.Getenv("ARTICLE_LINK_CLASS_NAME")
-	if resource == "" {
-		return "", noArticleLinkClassName
-	}
-
-	return resource, nil
-}
-
 func GetTelegramBotToken() (string, error) {
 	token := os.Getenv("TG_BOT_TOKEN")
 	if token == "" {
@@ -101,6 +60,5 @@ func GetTelegramBotToken() (string, error) {
 }
 
 func GetMode() Mode {
-	flag.Parse()
 	return mode
 }
