@@ -10,9 +10,9 @@ ENTRYPOINT_FILE ?= $(ROOT_DIR)/main
 TG_BOT_TOKEN ?= ""
 
 ifneq (,$(wildcard ./.env))
-    include .env
-    export
-    ENV_FILE_PARAM = --env-file .env
+	include .env
+	export
+	ENV_FILE_PARAM = --env-file .env
 endif
 
 workspace: env install-libs
@@ -38,11 +38,11 @@ install-libs:
 calc-lines:
 	( find $(SOURCE_PATH) -name '*.go' -print0 | xargs -0 cat ) | wc -l
 
-env: clean-env clean-db-file create-db-file
+env: clean-env reset-db-file
 	echo "DB_FILE=$(DB_FILE_PATH)" >> $(ENV_FILE)
 	echo "TG_BOT_TOKEN=$(TG_BOT_TOKEN)" >> $(ENV_FILE)
 
-create-db-file: clean-db-file
+reset-db-file: clean-db-file
 	mkdir -p $(DATA_DIR) && touch $(DB_FILE_PATH)
 
 clean-db-file:
