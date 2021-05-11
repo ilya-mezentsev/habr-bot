@@ -21,7 +21,7 @@ build:
 	unset GOPATH && cd $(ROOT_DIR) && go build main.go
 
 test:
-	unset GOPATH && cd $(SOURCE_PATH) && go test ./... -cover | { grep -v "no test files"; true; }
+	unset GOPATH && cd $(SOURCE_PATH) && go test -cover -p 1 ./... | { grep -v "no test files"; true; }
 
 run-tg:
 	$(ENTRYPOINT_FILE) -mode tg -config $(CONFIGS_FILE_PATH)
