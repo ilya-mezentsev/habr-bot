@@ -8,7 +8,7 @@ import (
 )
 
 func TestService_ParseCategorySuccess(t *testing.T) {
-	service := New("https://habr.com/ru/hub", "post__title_link")
+	service := New("https://habr.com", "https://habr.com/ru/hub", "post__title_link")
 	category := "go:top10"
 	articles := make(chan models.Article)
 	articlesProcessing := models.ProcessingChannels{
@@ -34,7 +34,7 @@ func TestService_ParseCategorySuccess(t *testing.T) {
 }
 
 func TestService_ParseCategoryError(t *testing.T) {
-	service := New("bad-url", "")
+	service := New("https://habr.com", "bad-url", "")
 	category := "go"
 	articles := make(chan models.Article)
 	articlesProcessing := models.ProcessingChannels{

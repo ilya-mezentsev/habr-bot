@@ -12,12 +12,17 @@ import (
 )
 
 type Service struct {
+	habrBaseUrl          string
 	habrHubUrl           string
 	articleLinkClassName string
 }
 
-func New(url, className string) interfaces.ArticlesParserService {
-	return Service{url, className}
+func New(baseUrl, url, className string) interfaces.ArticlesParserService {
+	return Service{
+		habrBaseUrl:          baseUrl,
+		habrHubUrl:           url,
+		articleLinkClassName: className,
+	}
 }
 
 func (s Service) ParseCategory(
@@ -45,6 +50,9 @@ func (s Service) ParseCategory(
 			if s.isArticleLink(token) {
 				tokenizer.Next()
 				article := s.prepareArticle(categoryData, token)
+				// after habr update articles title placed inside span in anchor element -
+				// so we need to call Next here
+				tokenizer.Next()
 				article.Title = string(tokenizer.Text())
 
 				articles <- article
@@ -88,7 +96,7 @@ func (s Service) prepareArticle(category string, token html.Token) models.Articl
 	}
 	for _, attr := range token.Attr {
 		if attr.Key == "href" {
-			article.Link = attr.Val
+			article.Link = fmt.Sprintf("%s%s", s.habrBaseUrl, attr.Val)
 		}
 	}
 

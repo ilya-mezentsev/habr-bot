@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
@@ -17,6 +18,7 @@ import (
 	articlesService "habr-bot/source/services/articles"
 	articlesParser "habr-bot/source/services/articles_parser"
 	"habr-bot/source/services/category_format"
+	"net/url"
 	"os"
 )
 
@@ -30,6 +32,9 @@ func init() {
 	configs, err = config.GetAll()
 	handleError(err)
 
+	u, err := url.Parse(configs.ArticlesResource)
+	handleError(err)
+
 	db, err := sqlx.Open("sqlite3", configs.DBPath)
 	handleError(err)
 	mock.CreateTableIfNotExists(db)
@@ -38,6 +43,7 @@ func init() {
 		articlesService.New(
 			articlesRepository.New(db),
 			articlesParser.New(
+				fmt.Sprintf("%s://%s", u.Scheme, u.Host),
 				configs.ArticlesResource,
 				configs.ArticleLinkClassName,
 			),
